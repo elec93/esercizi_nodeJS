@@ -1,16 +1,20 @@
-// Our HTTP server sends an HTML response body.
-// Replace the text in the HTML with your own message. Run the server and use your web browser to test your changes.
-import { createServer } from "node:http";
+// Our HTTP server now sends a JSON response body.
+// Change the location in the response to "Mars". Run the server and make a request to it with curl using the --verbose flag. 
+//What is the value of the Content-Length response header?
 
+//== RISPOSTA DEL TERMINALE-> Content-Length: 19 
+
+import { createServer } from "node:http";
 const server = createServer((request, response) => {
   console.log("request received");
 
   response.statusCode = 200;
 
-  response.setHeader("Content-Type", "text/html");
+  response.setHeader("Content-Type", "application/json");
 
-  response.end(
-    "<html><body><h1 style='color: green'>Buona <span style='color: pink'>Pasqua!</span></h1></body></html>"  );
+  const jsonResponseBody = JSON.stringify({ location: "Mars" });
+
+  response.end(jsonResponseBody);
 });
 
 server.listen(3000, () => {
