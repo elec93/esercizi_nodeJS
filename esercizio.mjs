@@ -1,22 +1,11 @@
-// Our HTTP server now sends a JSON response body.
-// Change the location in the response to "Mars". Run the server and make a request to it with curl using the --verbose flag. 
-//What is the value of the Content-Length response header?
+// Create a script that uses the Node.js core fs.writeFile() (callback API) method to write a text file. 
+//The documentation for this method is on the Node.js File system page.
 
-//== RISPOSTA DEL TERMINALE-> Content-Length: 19 
+import { writeFile } from 'node:fs';
+import { Buffer } from 'node:buffer';
 
-import { createServer } from "node:http";
-const server = createServer((request, response) => {
-  console.log("request received");
-
-  response.statusCode = 200;
-
-  response.setHeader("Content-Type", "application/json");
-
-  const jsonResponseBody = JSON.stringify({ location: "Mars" });
-
-  response.end(jsonResponseBody);
-});
-
-server.listen(3000, () => {
-  console.log(`Server running at http://localhost:3000`);
-});
+const data = new Uint8Array(Buffer.from('Hello Node.js'));
+writeFile('message.txt', data, (err) => {
+  if (err) throw err;
+  console.log('The file has been saved!');
+}); 
