@@ -1,6 +1,6 @@
-// The `luckyDraw` function returns a promise.
-// Create a promise chain where the function is called for for each of the players: Joe, Caroline and Sabrina
-// Log out the resolved value for each promise and handle any promise rejections in the chain.
+// Create agetResults function that uses async and await.
+// Inside of the function, call the luckyDraw function for each of the players: Tina, Jorge, Julien
+// Log out the resolved value for each promise and handle any promise rejections.
 
 function luckyDraw(player) {
   return new Promise((resolve, reject) => {
@@ -16,16 +16,16 @@ function luckyDraw(player) {
   });
 }
 
-luckyDraw("Joe")
-  .then((res) => {
-    console.log(res);
-    return luckyDraw("Caroline");
-  })
-  .then((res) => {
-    console.log(res);
-    return luckyDraw("Sabrina");
-  })
-  .then((res) => console.log(res))
-  .catch((error) => {
-    console.error(error);
-  });
+async function getResults() {
+  try {
+    const tinaRes = await luckyDraw("Tina");
+    console.log(tinaRes);
+    const jorgeRes = await luckyDraw("Jorge");
+    console.log(jorgeRes);
+    const julienRes = await luckyDraw("Julien");
+    console.log(julienRes);
+  } catch (error) {
+    console.log('errore:' + error);
+  }
+}
+getResults();
