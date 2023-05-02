@@ -1,37 +1,27 @@
-// - Using PgAdmin:
-//   - Create a Postgres DB.
-// - Using a `setupDb` function:
-//   - Create `planets` table.
-//   - Populate the table with two planets (e.g. `'Earth'` and `'Mars'`).
-// - Connect your app to Postgres using Express (`pg-promise`). [https://github.com/vitaly-t/pg-promise]
-// - Replace the dummy DB with the Postgres DB.
-// - Rewrite all planets controller functions. They should now work with the DB. (Use the SQL queries below.)
+//     Add image field to planets table in the DB.
+//     Set POST /planets/:id/image route for file upload (planet's image).
+//     Store the image file locally (on disk).
+//     Save file path to DB (update the correct planet).
 
-// ## Use
-// - SQL query to create the table:
-//   DROP TABLE IF EXISTS planets;
-//   CREATE TABLE planets(
-//     id SERIAL NOT NULL PRIMARY KEY,
-//     name TEXT NOT NULL,
-//   );
+//Use
 
-// - Make sure that all CRUD operations read from and write to Postgres (instead of the dummy db you've been using in previous exercises).
-//   - `GET /planets`
-//     - Use this SQL query: SELECT * FROM planets;
-//   - `GET /planets/:id`
-//     - Use this SQL query: SELECT * FROM planets WHERE id=$1; Make sure that `$1` is `id`.
-//   - `POST /planets`
-//     - Use this SQL query: INSERT INTO planets (name) VALUES ($1); Make sure that `$1` is `name`.
-//   - `PUT /planets/:id`
-//     - Use this SQL query: UPDATE planets SET name=$2 WHERE id=$1; Make sure that `$1` is `id` and `$2` is `name`.
-//   - `DELETE /planets/:id`
-//     - Use this SQL query: DELETE FROM planets WHERE id=$1; Make sure that `$1` is `id`.
+//     Add image TEXT to your CREATE TABLE planets SQL query.
+//     Use multer library to save files to /uploads folder.
+//     Add image TEXT to CREATE TABLE planets SQL query (in your DB setup).
+//     Use this SQL query to update planet's image:
+//      UPDATE planets
+//      SET image=$2
+//      WHERE id=$1;
+
+//Use Postman to test the upload route (you can send a file in Postman).
 
 import { Request, Response } from "express";
 import Joi, { number } from "joi";
 import pgPromise from "pg-promise"; // npm i pg-promise
 
-const db = pgPromise({})(`postgress://postgres:postgres@lochalhost:5432/postgres`); //link del database -> user e password (postgres:postgres)
+const db = pgPromise({})(
+  `postgress://postgres:postgres@lochalhost:5432/postgres`
+); //link del database -> user e password (postgres:postgres)
 
 //funzione setupDb -> creo la tabella con due pianeti
 const setupDb = async () => {
@@ -40,11 +30,12 @@ const setupDb = async () => {
 
     CREATE TABLE planets (
       id SERIAL NOT NULL PRIMARY KEY,
-      name TEXT NOT NULL
+      name TEXT NOT NULL,
+      image TEXT
    );
-  `)
-  await db.none(`INSERT INTO planets (name) VALUES ('Earth')`) //inserisci una riga nella tabella planets col nome con la seguente value
-  await db.none(`INSERT INTO planets (name) VALUES ('Mars')`)
+  `);
+  await db.none(`INSERT INTO planets (name) VALUES ('Earth')`); //inserisci una riga nella tabella planets col nome con la seguente value
+  await db.none(`INSERT INTO planets (name) VALUES ('Mars')`);
 };
 
 //SELECT * FROM planets;
@@ -56,7 +47,10 @@ const getAll = async (request: Request, response: Response) => {
 //SELECT * FROM planets WHERE id=$1; Make sure that `$1` is `id`.
 const getOneById = async (request: Request, response: Response) => {
   const { id } = request.params;
-  const planet = await db.oneOrNone(`SELECT * FROM planets WHERE id=$1;`, Number(id));
+  const planet = await db.oneOrNone(
+    `SELECT * FROM planets WHERE id=$1;`,
+    Number(id)
+  );
 
   response.status(200).json(planet);
 };
@@ -77,7 +71,7 @@ const create = async (request: Request, response: Response) => {
       .status(400)
       .json({ msg: validateNewPlanet.error.details[0].message });
   } else {
-    await db.none(`INSERT INTO planets (name) VALUES ($1)`, name)
+    await db.none(`INSERT INTO planets (name) VALUES ($1)`, name);
     response.status(201).json({ msg: "planet created!" });
   }
 };
@@ -87,7 +81,7 @@ const updateById = async (request: Request, response: Response) => {
   const { id } = request.params;
   const { name } = request.body;
 
-  await db.none(`UPDATE planets SET name=$2 WHERE id=$1`, [id, name])
+  await db.none(`UPDATE planets SET name=$2 WHERE id=$1`, [id, name]);
 
   response.status(200).json({ msg: "planet updated!" });
 };
@@ -96,10 +90,22 @@ const updateById = async (request: Request, response: Response) => {
 const deleteById = async (request: Request, response: Response) => {
   const { id } = request.params;
 
-  await db.none(`DELETE FROM planets WHERE id=$1;`, Number(id))
+  await db.none(`DELETE FROM planets WHERE id=$1;`, Number(id));
 
   response.status(200).json({ msg: "planet deleted!" });
 };
 
+/*******************************/
+const createImage = async (request: Request, response: Response) => {
+  console.log(request.file);
+  const { id } = request.params;
+  const filename = request.file?.path;
+  if (filename) {
+    response.status(201).json({ msg: "image uploaded succesfully" });
+  } else {
+    response.status(400).json({ msg: "image uploaded failed" });
+  }
+};
+/*******************************/
 
-export { getAll, getOneById, create, updateById, deleteById };
+export { getAll, getOneById, create, updateById, deleteById, createImage };
