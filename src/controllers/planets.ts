@@ -1,42 +1,6 @@
-//     Add image field to planets table in the DB.
-//     Set POST /planets/:id/image route for file upload (planet's image).
-//     Store the image file locally (on disk).
-//     Save file path to DB (update the correct planet).
-
-//Use
-
-//     Add image TEXT to your CREATE TABLE planets SQL query.
-//     Use multer library to save files to /uploads folder.
-//     Add image TEXT to CREATE TABLE planets SQL query (in your DB setup).
-//     Use this SQL query to update planet's image:
-//      UPDATE planets
-//      SET image=$2
-//      WHERE id=$1;
-
-//Use Postman to test the upload route (you can send a file in Postman).
-
 import { Request, Response } from "express";
 import Joi, { number } from "joi";
-import pgPromise from "pg-promise"; // npm i pg-promise
-
-const db = pgPromise({})(
-  `postgress://postgres:postgres@lochalhost:5432/postgres`
-); //link del database -> user e password (postgres:postgres)
-
-//funzione setupDb -> creo la tabella con due pianeti
-const setupDb = async () => {
-  db.none(`
-    DROP TABLE IF EXISTS planets; 
-
-    CREATE TABLE planets (
-      id SERIAL NOT NULL PRIMARY KEY,
-      name TEXT NOT NULL,
-      image TEXT
-   );
-  `);
-  await db.none(`INSERT INTO planets (name) VALUES ('Earth')`); //inserisci una riga nella tabella planets col nome con la seguente value
-  await db.none(`INSERT INTO planets (name) VALUES ('Mars')`);
-};
+import {db} from "./../db.js"
 
 //SELECT * FROM planets;
 const getAll = async (request: Request, response: Response) => {
