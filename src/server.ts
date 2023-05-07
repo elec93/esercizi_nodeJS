@@ -10,6 +10,7 @@ import {
   deleteById,
   createImage,
 } from "./controllers/planets.js";
+import { logIn, signUp } from "./controllers/users.js";
 dotenv.config();
 
 /******* FILE upload *******/
@@ -44,6 +45,11 @@ app.delete("/api/planets/:id", deleteById);
 /*******************************/
 app.post("/api/planets/:id/image", upload.single("image"), createImage);
 /*******************************/
+
+/********* ROUTES JWT **********************/
+app.post("/api/users/login", logIn);
+app.post("/api/users/signup", signUp);
+/******************************************/
 
 app.listen(port, () => {
   console.log(`server is running at http://localhost:${port}`);
